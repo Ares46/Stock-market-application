@@ -1,4 +1,6 @@
 #include "Login.h"
+#include "stock.h"
+#include <iomanip> // For setting precision and width
 
 void main()
 {
@@ -23,5 +25,16 @@ void main()
         break;
     }
 
+    
+
+    stock a("bitcoin", 250.0);  
+
+    cout << fixed << setprecision(2);
+    cout << "Current price: " << a.get_price() << "\t";  
+
+    a.set_new_price();
+
+    cout << "New price: " << a.get_price() << "\t";     
+    cout << "Percentage change: " << a.get_percentage() << "%" << endl; 
 
 }
