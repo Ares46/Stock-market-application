@@ -19,14 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="link_list.h" />
     <ClInclude Include="Login.h" />
+    <ClInclude Include="node.h" />
     <ClInclude Include="password masking.h" />
     <ClInclude Include="password_checker.h" />
     <ClInclude Include="stock.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="link_list.cpp" />
     <ClCompile Include="Login.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="node.cpp" />
     <ClCompile Include="password masking.cpp" />
     <ClCompile Include="password_checker.cpp" />
     <ClCompile Include="stock.cpp" />

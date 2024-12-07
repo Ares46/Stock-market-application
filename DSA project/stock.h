@@ -1,3 +1,6 @@
+#ifndef STOCK_H // Start of include guard
+#define STOCK_H
+
 #include<iostream>
 #include<string>
 #include<cmath>
@@ -7,7 +10,7 @@ using namespace std;
 class stock
 {
 	double price,preprice;
-	float percentage;
+	double percentage;
 	string name;
 
 public:
@@ -17,8 +20,9 @@ public:
 	double get_price();
 	void set_percentage();
 	double get_percentage();
-
+	string get_name();
 	
 
 };
 
+#endif // End of include guard

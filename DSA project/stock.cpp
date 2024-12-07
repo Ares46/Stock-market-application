@@ -17,12 +17,12 @@ stock::stock(string a, int b) {
 void stock::set_new_price() {
     random_device rd;                          // Seed for the random number generator
     mt19937 gen(rd());                         // Mersenne Twister engine
-    normal_distribution<double> dist(0.0, 0.02); // Normal distribution with small changes in stock price (volatility)
+    normal_distribution<double> dist(0.0, 0.5); // Normal distribution with small changes in stock price (volatility)
 
     double currentPrice = price;               // Starting stock price
     double previousPrice = preprice;           // Use preprice for previous value
 
-    double drift = 0.005;                     // Small drift (average daily return, can be adjusted)
+    double drift = 0.0;                     // Small drift (average daily return, can lead to posiative or negative value)
     double volatility = 0.02;                  // Volatility (standard deviation of returns)
 
     // Calculate the change in price using the drift and volatility
@@ -58,4 +58,9 @@ double stock::get_price() {
 
 double stock::get_percentage() {
     return percentage;
+}
+
+string stock::get_name()
+{
+    return name;
 }
