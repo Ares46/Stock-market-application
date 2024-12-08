@@ -4,12 +4,14 @@
 #include "node.h"
 
 class link_list {
-    node* head;
+   
 
 public:
+    node* head;
     link_list();
     void insertion(node* a);
     void display();
     void updata_values();
+    
 };
 #endif

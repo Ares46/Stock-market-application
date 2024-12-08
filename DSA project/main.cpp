@@ -5,25 +5,14 @@
 #include <Windows.h>
 #include <thread>
 #include <iostream>
+#include "share.h"
 #include <limits> // For numeric_limits
 #include <vector> // For storing owl art
+#include "user.h"
+#include <mutex> // For thread safety
 using namespace std;
 
-// Function to continuously update and display stock market values
-void stock_market(link_list& l) {
-    while (true) {
-        l.updata_values(); // Assuming this function exists and updates the stock values
 
-        // Clear the console
-        system("cls");
-
-        // Display the updated list
-        l.display(); // Assuming this function displays the stock values
-
-        // Pause for 2 seconds
-        Sleep(2000); // Sleep for 2000 milliseconds (2 seconds)
-    }
-}
 
 // Function to display the owl art line by line
 void display_owl() {
@@ -75,7 +64,7 @@ void display_owl() {
         "                                     ..!!^?~^?^    ^?^!7:7!..",
         "                                      ^@@P@#G@P    P@B&@5@@^",
         "                                       Y5.G!^B^    ^B:?P 5Y",
-        "                                             ."
+        "                                             "
     };
 
     for (int i = 0; i < owl.size(); i++) {
@@ -144,10 +133,28 @@ void display_owl_blue() {
 
 
 
+// Mutex for thread safety
+mutex mtx;
+
+// Function to continuously update and display stock market values
+void stock_market(link_list& l) {
+    while (true) {
+        // Lock the mutex for thread-safe access
+        mtx.lock();
+        l.updata_values(); // Assuming this function updates the stock values
+
+      
+        mtx.unlock();
+
+        // Pause for 2 seconds
+        Sleep(2000); // Sleep for 2000 milliseconds (2 seconds)
+    }
+}
+
 int main() {
     bool validChoice = false;
 
-    // Display owl art
+    // Display owl art (optional)
     display_owl();
 
     Sleep(3000); // Pause for 3 seconds
@@ -157,7 +164,7 @@ int main() {
         system("cls"); // Clear the screen
 
         display_owl_head(); // Display owl head
-        display_owl_blue();//Display blue owl 
+        display_owl_blue(); // Display blue owl
 
         cout << "1. Register\n";
         cout << "2. Login\n";
@@ -194,6 +201,7 @@ int main() {
 
     system("cls"); // Clear the screen after successful login/register
 
+    // Create and initialize the linked list
     link_list l;
 
     // Create some stock objects
@@ -214,15 +222,91 @@ int main() {
     // Launch the stock market update in a separate thread
     thread stockThread(stock_market, ref(l));
 
-    // Main thread continues to take input from the user
-    int a;
-    cout << "You can enter values here while the stock market updates:\n";
-    while (cin >> a) {
-        cout << "You entered: " << a << endl;
-    }
+    // Detach the thread to let it run independently
+    stockThread.detach();
 
-    // Join the thread before exiting
-    stockThread.join();
+    // User functionality
+    user a("Adam");
+    int choices;
+    while (true) {  // Loop to allow repeated actions
+        system("cls");
+        cout << "Please select our services\n";
+        cout << "1. Check the stock market\n";
+        cout << "2. Check your balance\n";
+        cout << "3. Buy stocks\n";
+        cout << "4. Add balance\n";
+        cout << "5. check your investment\n";
+        cout << "Enter your choice: ";
+
+        if (cin >> choices) {  // Validate input for user choices
+            switch (choices) {
+            case 1:
+                while (true) {
+                    system("cls");      // Clear the screen before displaying new data
+                    l.display();        // Display updated stock market details
+                    cout << "To exit, press any key...";
+
+                    // Check if any key is pressed to exit
+                    if (_kbhit()) {
+                        _getch();   // Read and discard the pressed key
+                        break;      // Exit the loop
+                    }
+
+                    Sleep(5000);        // Pause for 5 seconds before updating again
+                }
+                break;
+            case 2:
+                cout << "Your balance is: $" << a.get_balance() << endl; // Assuming `get_balance()` is implemented in the user class
+                cout << "To exit, press any key...";
+                while (true) {
+                    
+                    // Check if any key is pressed to exit
+                    if (_kbhit()) {
+                        _getch();   // Read and discard the pressed key
+                        break;      // Exit the loop
+                    }
+                }
+                break;
+            case 3:
+                a.buy(&l);
+                Sleep(3000);
+                break;
+            case 4:
+                cout << "Enter amount to add to balance: ";
+                double amount;
+                cin >> amount;
+                a.set_balance(amount); // Assuming add_balance is implemented to update the balance
+                cout << "Balance was added successfully";
+                Sleep(2000);
+                break;
+
+            case 5:
+                while (true) {
+                system("cls");      // Clear the screen before displaying new data
+                a.display_users_shares();      // Display updated stock market details
+                cout << "To exit, press any key...";
+
+                // Check if any key is pressed to exit
+                if (_kbhit()) {
+                    _getch();   // Read and discard the pressed key
+                    break;      // Exit the loop
+                }
+
+                Sleep(5000);        // Pause for 5 seconds before updating again
+            }
+                  break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+                break;
+            }
+        }
+        else {
+            cout << "Invalid input. Please enter a number.\n";
+            cin.clear();
+            cin.ignore();
+            Sleep(2000);
+        }
+    }
 
     // Clean up dynamically allocated memory
     delete s1;
