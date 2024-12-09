@@ -141,21 +141,22 @@ void stock_market(link_list& l) {
     while (true) {
         // Lock the mutex for thread-safe access
         mtx.lock();
-        l.updata_values(); // Assuming this function updates the stock values
+        l.updata_values();
 
       
         mtx.unlock();
 
-        // Pause for 2 seconds
-        Sleep(2000); // Sleep for 2000 milliseconds (2 seconds)
+        // Pause for 10 seconds
+        Sleep(10000); 
     }
 }
 
-int main()
-{
+
+int main() {
+    string username;  // Store the username
     bool validChoice = false;
 
-    // Display owl art (optional)
+    // Display owl art
     display_owl();
 
     Sleep(3000); // Pause for 3 seconds
@@ -176,12 +177,12 @@ int main()
         if (cin >> choice) { // If input is valid
             switch (choice) {
             case 1:
-                Register();  // Assuming Register() is defined elsewhere
+                username = Register();  // Assuming Register() is defined elsewhere
                 validChoice = true;
                 break;
 
             case 2:
-                login();  // Assuming login() is defined elsewhere
+                username = login();  // Assuming login() is defined elsewhere
                 validChoice = true;
                 break;
 
@@ -227,11 +228,18 @@ int main()
     stockThread.detach();
 
     // User functionality
-    user a("Adam");
-    int choices;
+    user a(username);
+
+    // Login for the user
+    a.login(l);
+
+    Sleep(3000);
 
     while (true) {  // Loop to allow repeated actions
         system("cls");
+
+        int choices;
+
         cout << "Please select our services\n";
         cout << "1. Check the stock market\n";
         cout << "2. Check your balance\n";
@@ -239,6 +247,7 @@ int main()
         cout << "4. Add balance\n";
         cout << "5. Check your investment\n";
         cout << "6. Sell stocks\n";
+        cout << "7. Logout\n";
         cout << "Enter your choice: ";
 
         if (cin >> choices) {  // Validate input for user choices
@@ -255,7 +264,7 @@ int main()
                         break;      // Exit the loop
                     }
 
-                    Sleep(5000);        // Pause for 5 seconds before updating again
+                    Sleep(1500);        // Pause for 5 seconds before updating again
                 }
                 break;
             case 2:
@@ -304,6 +313,14 @@ int main()
                 a.sell();
                 Sleep(3000);
                 break;
+
+            case 7:
+                a.logout(); // Logout function should be called here
+
+                // Exit the program after logout
+                cout << "You have logged out successfully.\n";
+                return 0;
+
             default:
                 cout << "Invalid choice. Please try again.\n";
                 Sleep(2000);

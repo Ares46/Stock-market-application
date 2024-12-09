@@ -4,7 +4,7 @@
 #include <windows.h>  // Required for Sleep()
 
 
-void login() {
+string login() {
     fstream file;
     string name, password;
 
@@ -25,7 +25,7 @@ void login() {
 
                 if (password == fpassword) {
                     cout << "\nLogged in successfully!\n";
-                    return;  // Exit the login function if the password is correct
+                    return name;  // Exit the login function if the password is correct
                 }
                 else {
                     cout << "\rIncorrect password! Please try again.   ";
@@ -55,10 +55,12 @@ void login() {
 
         file.close();  // Close the file after checking the username and password
     }
+
+  
 }
 
 
-void Register()
+string Register()
 {
     string username, password;
     fstream new_user;
@@ -112,4 +114,6 @@ void Register()
     }
 
     new_user.close();  // Close the file
+
+    return username;
 }

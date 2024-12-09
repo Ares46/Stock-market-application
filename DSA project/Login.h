@@ -7,5 +7,5 @@ using namespace std;
 
 
 
-void login();
-void Register();
+string login();
+string Register();

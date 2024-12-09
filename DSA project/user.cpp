@@ -2,6 +2,7 @@
 #include <iomanip>
 #include "link_list_shares.h"
 
+
 user::user(string n)
 {
     username = n;
@@ -18,6 +19,28 @@ void user::set_balance(double a)
 double user::get_balance()
 {
     return balance;
+}
+
+void user::get_password() {
+    fstream file;
+    string password;  // Declare a local string variable to store the password
+
+    // Open the file in read mode
+    file.open(username, ios::in);
+    if (!file) {
+        cout << "Error: Unable to open file.\n";
+        return;
+    }
+
+    // Assuming the password is stored in the first line
+    if (getline(file, password)) {
+        this->password = password;  // Set the class member variable
+    }
+    else {
+        cout << "Error: Unable to read password from file.\n";
+    }
+
+    file.close();
 }
 
 void user::buy(link_list* l) {
@@ -193,4 +216,97 @@ void user::sell() {
         break; // Exit the loop after a successful sale
     }
 }
+
+void user::logout() {
+    fstream file;
+    share* current = users_shares.head;
+
+    // Open the file in write mode to overwrite the user's data
+    file.open(username, ios::out);
+    if (!file) {
+        cout << "Error: Unable to open file for logout.\n";
+        return;
+    }
+    //saves the users password
+    file << password << endl;
+    // Save the balance and owned shares to the file
+    file << balance << endl; // First line is the balance
+
+    while (current != nullptr) {
+        file << current->get_product().get_name() << endl;  // Save share name
+        file << current->get_quantaty() << endl;           // Save share quantity
+        current = current->next;
+    }
+
+    file.close();
+    cout << "Logout successful! Data saved.\n";
+}
+
+void user::login(link_list& a) {
+    fstream file;
+    string val;
+    node* current = a.head;
+
+    // Open the file in read mode
+    file.open(username, ios::in);
+    if (!file) {
+        cout << "Error: Unable to open file for login.\n";
+        return;
+    }
+
+    // Read the first line for password (assuming it is stored as a string)
+    getline(file, val);
+    password = val;  // Store password as string, no need to convert to double
+
+    // Read the balance from the second line
+    getline(file, val);
+    try {
+        balance = stod(val);  // Convert string to double for balance
+    }
+    catch (const std::invalid_argument& e) {
+        cout << "Error: Invalid balance format.\n";
+        file.close();
+        return;
+    }
+    catch (const std::out_of_range& e) {
+        cout << "Error: Balance value out of range.\n";
+        file.close();
+        return;
+    }
+
+    // Read and process the remaining lines for shares
+    while (getline(file, val)) {
+        bool found = false;
+        current = a.head;
+
+        // Find the matching stock in the list
+        while (current != nullptr) {
+            if (val == current->data->get_name()) {
+                found = true;
+                share* newShare = new share(current->data, 0); // Create a new share object
+                getline(file, val); // Read the quantity
+                try {
+                    newShare->set_quantaty(stoi(val));  // Set the quantity of shares
+                }
+                catch (const std::invalid_argument& e) {
+                    cout << "Error: Invalid quantity format for stock: " << val << ".\n";
+                    delete newShare; // Clean up the created share object
+                    continue;
+                }
+
+                users_shares.insert(newShare); // Insert it into the user's shares list
+                break;
+            }
+            current = current->next;
+        }
+
+        if (!found) {
+            cout << "Error: Stock not found in the list: " << val << ".\n";
+        }
+    }
+
+    file.close();
+}
+
+
 
