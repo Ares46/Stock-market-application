@@ -20,28 +20,38 @@ double user::get_balance()
     return balance;
 }
 
-void user::buy(link_list* l)
-{
+void user::buy(link_list* l) {
     bool found = false;
     string n;
     node* current = l->head;
 
-    // Search for the stock
     while (!found) {
-        cout << "Please enter the stock you want to buy: ";
+
+        // Display available shares
+        cout << "\033[1;36mAvailable shares:\033[0m\n"; // Cyan color
+        cout << "\033[1;33m" << left << setw(20) << "Name" << setw(20) << "Current Price" << "\033[0m" << endl; // Yellow color
+
+        node* display = l->head; // Reset display pointer
+        while (display != nullptr) {
+            cout << left << setw(20) << display->data->get_name() << setw(20) << display->data->get_price() << endl;
+            display = display->next;
+        }
+
+        cout << "\nPlease enter the stock you want to buy: ";
         cin >> n;
 
-        current = l->head;  // Reset to head each time
-        while (current != NULL) {
+        // Search for the stock
+        current = l->head; // Reset current pointer
+        while (current != nullptr) {
             if (current->data->get_name() == n) {
                 found = true;
-                break;  // Stock found
+                break; // Stock found
             }
             current = current->next;
         }
 
         if (!found) {
-            cout << "Stock doesn't exist. Please try again." << endl;
+            cout << "Error: Stock doesn't exist. Please try again.\n";
         }
     }
 
@@ -52,18 +62,22 @@ void user::buy(link_list* l)
     cout << "Enter the number of shares you want to buy: ";
     cin >> b;
 
+    if (b <= 0) {
+        cout << "Error: Number of shares must be positive. Transaction aborted.\n";
+        return;
+    }
+
     total_cost = b * current->data->get_price();
     if (total_cost > balance) {
-        cout << "Insufficient balance!" << endl;
+        cout << "Error: Insufficient balance! Transaction aborted.\n";
     }
     else {
         balance -= total_cost;
-        share* a = new share(current->data, b);  // Create the new share object
-        users_shares.insert(a);  // Insert into user's shares list
-        cout << "Purchase successful!" << endl;
+        share* new_share = new share(current->data, b); // Create the new share object
+        users_shares.insert(new_share);                // Insert into user's shares list
+        cout << "Purchase successful! You bought " << b << " shares of " << n << ".\n";
     }
 }
-
 
 void user::display_users_shares() {
     if (users_shares.head == nullptr) {
@@ -81,7 +95,7 @@ void user::display_users_shares() {
         // Output the stock name, price, and shares owned
         cout << left << setw(20) << current->get_product().get_name()
             << fixed << setprecision(2) // Ensure two decimal places for the price
-            << setw(10) << current->get_product().get_price() 
+            << setw(10) << current->get_product().get_price()
             << setw(20) << (current->get_product().get_price() * current->get_quantaty());
 
         // Color the percentage based on its value
@@ -99,3 +113,84 @@ void user::display_users_shares() {
         current = current->next;
     }
 }
+
+void user::sell() {
+    while (true) {
+        // Display the user's shares
+        cout << "\033[1;36mYour shares are:\033[0m\n"; // Cyan color
+        cout << "\033[1;33m" << left << setw(20) << "Name" << setw(20) << "Shares" << "\033[0m" << endl; // Yellow color
+
+
+        share* current = users_shares.head;
+        while (current != nullptr) {
+            cout << left << setw(20) << current->get_product().get_name()
+                << setw(20) << current->get_quantaty() << endl;
+            current = current->next;
+        }
+
+        // Input for the stock name and quantity to sell
+        string stockName;
+        int sellQuantity;
+
+        cout << "\nEnter the share you want to sell: ";
+        cin >> stockName;
+
+        cout << "Enter the number of shares you want to sell: ";
+        cin >> sellQuantity;
+
+        // Validate input
+        bool isFound = false;
+        current = users_shares.head;
+        share* previous = nullptr;
+
+        while (current != nullptr) {
+            if (current->get_product().get_name() == stockName) {
+                isFound = true;
+
+                // Check if the user owns enough shares
+                if (current->get_quantaty() < sellQuantity) {
+                    cout << "Error: You do not have enough shares of " << stockName
+                        << " to sell. Try again.\n" << endl;
+                    isFound = false; // Force re-entry of valid data
+                }
+                break;
+            }
+            previous = current;
+            current = current->next;
+        }
+
+        if (!isFound) {
+            cout << "Error: You do not own shares of " << stockName
+                << ". Please enter a valid share name.\n" << endl;
+            continue; // Loop back to re-enter valid values
+        }
+
+        // Calculate profit from the sale
+        int profit = current->get_product().get_price() * sellQuantity;
+
+        // Deduct the sold shares
+        current->set_quantaty(current->get_quantaty() - sellQuantity);
+        cout << sellQuantity << " shares of " << stockName << " sold successfully!" << endl;
+
+        // Remove the share node if all shares are sold
+        if (current->get_quantaty() == 0) {
+            if (previous == nullptr) {
+                // If the node to delete is the head
+                users_shares.head = current->next;
+            }
+            else {
+                previous->next = current->next;
+            }
+            delete current; // Free the memory
+            cout << "You have sold all your shares of " << stockName << "." << endl;
+        }
+
+        // Update the user's balance with the profit
+        balance += profit;
+        cout << "Profit from the sale: " << profit << endl;
+        cout << "Updated balance: " << balance << endl;
+
+        break; // Exit the loop after a successful sale
+    }
+}
+

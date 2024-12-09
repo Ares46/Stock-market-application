@@ -21,3 +21,8 @@ stock share::get_product()
 {
 	return *product;
 }
+
+void share::set_quantaty(int a)
+{
+	quantaty = a;
+}

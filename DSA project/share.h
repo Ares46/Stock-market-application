@@ -16,6 +16,7 @@ public:
 	share();
 	share(stock *,int);
 
+	void set_quantaty(int);
 	int get_quantaty();
 	stock get_product();
 

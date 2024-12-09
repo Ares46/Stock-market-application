@@ -151,7 +151,8 @@ void stock_market(link_list& l) {
     }
 }
 
-int main() {
+int main()
+{
     bool validChoice = false;
 
     // Display owl art (optional)
@@ -228,6 +229,7 @@ int main() {
     // User functionality
     user a("Adam");
     int choices;
+
     while (true) {  // Loop to allow repeated actions
         system("cls");
         cout << "Please select our services\n";
@@ -235,7 +237,8 @@ int main() {
         cout << "2. Check your balance\n";
         cout << "3. Buy stocks\n";
         cout << "4. Add balance\n";
-        cout << "5. check your investment\n";
+        cout << "5. Check your investment\n";
+        cout << "6. Sell stocks\n";
         cout << "Enter your choice: ";
 
         if (cin >> choices) {  // Validate input for user choices
@@ -256,10 +259,10 @@ int main() {
                 }
                 break;
             case 2:
-                cout << "Your balance is: $" << a.get_balance() << endl; // Assuming `get_balance()` is implemented in the user class
+                system("cls");      // Clear the screen before displaying new data
+                cout << "Your balance is: $" << a.get_balance() << endl;
                 cout << "To exit, press any key...";
                 while (true) {
-                    
                     // Check if any key is pressed to exit
                     if (_kbhit()) {
                         _getch();   // Read and discard the pressed key
@@ -268,35 +271,42 @@ int main() {
                 }
                 break;
             case 3:
+                system("cls");      // Clear the screen before displaying new data
                 a.buy(&l);
                 Sleep(3000);
                 break;
             case 4:
+                system("cls");      // Clear the screen before displaying new data
                 cout << "Enter amount to add to balance: ";
                 double amount;
                 cin >> amount;
                 a.set_balance(amount); // Assuming add_balance is implemented to update the balance
-                cout << "Balance was added successfully";
+                cout << "Balance was added successfully.";
                 Sleep(2000);
                 break;
-
             case 5:
                 while (true) {
-                system("cls");      // Clear the screen before displaying new data
-                a.display_users_shares();      // Display updated stock market details
-                cout << "To exit, press any key...";
+                    system("cls"); // Clear the screen before displaying new data
+                    a.display_users_shares(); // Display the user's shares
+                    cout << "To exit, press any key..." << endl;
 
-                // Check if any key is pressed to exit
-                if (_kbhit()) {
-                    _getch();   // Read and discard the pressed key
-                    break;      // Exit the loop
+                    // Check if any key is pressed to exit
+                    if (_kbhit()) {
+                        _getch(); // Read and discard the pressed key
+                        break; // Exit the loop
+                    }
+
+                    Sleep(5000); // Pause for 5 seconds before updating again
                 }
-
-                Sleep(5000);        // Pause for 5 seconds before updating again
-            }
-                  break;
+                break;
+            case 6:
+                system("cls");      // Clear the screen before displaying new data
+                a.sell();
+                Sleep(3000);
+                break;
             default:
                 cout << "Invalid choice. Please try again.\n";
+                Sleep(2000);
                 break;
             }
         }
