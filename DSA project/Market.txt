@@ -1,0 +1,6 @@
+Apple
+192.279
+Microsoft
+156.396
+Amazon
+297.015

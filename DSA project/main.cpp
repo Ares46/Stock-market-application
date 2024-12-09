@@ -12,7 +12,66 @@
 #include <mutex> // For thread safety
 using namespace std;
 
+void open_market(stock* s[], int t) {
+    fstream file;
+    string nam;
+    string pri;
+    int count = 0;
 
+    // Open the file
+    file.open("Market.txt", ios::in);
+    if (!file) {
+        cout << "Error: File doesn't exist or couldn't be opened.\n";
+        return;
+    }
+
+    // Read the file line by line
+    while (count < t && getline(file, nam) && getline(file, pri)) {
+        try {
+            double price = stod(pri); // Convert price string to double
+            s[count] = new stock(nam, price); // Dynamically allocate stock object
+            ++count;
+        }
+        catch (const invalid_argument& e) {
+            cerr << "Error: Invalid price format for stock '" << nam << "'. Skipping.\n";
+        }
+        catch (const exception& e) {
+            cerr << "Error: Unexpected issue. " << e.what() << "\n";
+        }
+    }
+
+    // Handle cases where fewer stocks are read than expected
+    if (count < t) {
+        cout << "Warning: Only " << count << " stocks loaded out of " << t << ".\n";
+    }
+
+    file.close(); // Close the file
+}
+
+void close_market(stock* s[], int t) {
+    fstream file;
+
+    // Open the file for writing
+    file.open("Market.txt", ios::out);
+    if (!file) {
+        cout << "Error: Could not open the file for writing.\n";
+        return;
+    }
+
+    // Write each stock's data to the file
+    for (int i = 0; i < t; ++i) {
+        if (s[i]) {
+            file << s[i]->get_name() << "\n"
+                << s[i]->get_price() << "\n";
+        }
+        else {
+            cerr << "Warning: Stock at index " << i << " is null. Skipping.\n";
+        }
+    }
+
+    file.close(); // Close the file
+
+}
 
 // Function to display the owl art line by line
 void display_owl() {
@@ -130,7 +189,8 @@ void display_owl_blue() {
     cout << "\033[0m";  // Reset color
 }
 
-
+// Create some stock objects
+stock* s1[3];
 
 
 // Mutex for thread safety
@@ -142,7 +202,9 @@ void stock_market(link_list& l) {
         // Lock the mutex for thread-safe access
         mtx.lock();
         l.updata_values();
+        
 
+        close_market(s1,3);
       
         mtx.unlock();
 
@@ -150,6 +212,8 @@ void stock_market(link_list& l) {
         Sleep(10000); 
     }
 }
+
+
 
 
 int main() {
@@ -206,15 +270,14 @@ int main() {
     // Create and initialize the linked list
     link_list l;
 
-    // Create some stock objects
-    stock* s1 = new stock("Apple", 200);
-    stock* s2 = new stock("Microsoft", 260);
-    stock* s3 = new stock("Amazon", 150);
+
+    //enter values in the stock
+    open_market(s1, 3);
 
     // Create nodes for each stock
-    node* n1 = new node(s1);
-    node* n2 = new node(s2);
-    node* n3 = new node(s3);
+    node* n1 = new node(s1[0]);
+    node* n2 = new node(s1[1]);
+    node* n3 = new node(s1[2]);
 
     // Insert nodes into the linked list
     l.insertion(n1);
@@ -264,7 +327,7 @@ int main() {
                         break;      // Exit the loop
                     }
 
-                    Sleep(1500);        // Pause for 5 seconds before updating again
+                    Sleep(10000);        // Pause for 10 seconds before updating again
                 }
                 break;
             case 2:
@@ -316,6 +379,7 @@ int main() {
 
             case 7:
                 a.logout(); // Logout function should be called here
+                close_market(s1,3); //close the market and save the values in the file
 
                 // Exit the program after logout
                 cout << "You have logged out successfully.\n";
@@ -337,8 +401,7 @@ int main() {
 
     // Clean up dynamically allocated memory
     delete s1;
-    delete s2;
-    delete s3;
+ 
 
     return 0;
 }

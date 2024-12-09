@@ -13,7 +13,9 @@ class stock
 	double percentage;
 	string name;
 
+
 public:
+
 	stock();
 	stock(string,int);
 	void set_new_price();
